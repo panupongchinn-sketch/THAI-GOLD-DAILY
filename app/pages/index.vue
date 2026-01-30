@@ -115,13 +115,15 @@
                   <div class="grid grid-cols-2 gap-3 items-start">
                     <div class="text-center">
                       <div class="text-[28px] sm:text-[36px] font-black text-[#6b1f1f] tabular-nums leading-none tracking-tight">
-                        {{ gold?.price.gold_bar.buy || '-' }}
+                        <!-- {{ gold?.price.gold_bar.buy || '-' }} -->
+                        {{ gold?.price.gold_bar.sell || '-' }}
                       </div>
                     </div>
 
                     <div class="text-center">
                       <div class="text-[28px] sm:text-[36px] font-black text-[#6b1f1f] tabular-nums leading-none tracking-tight">
-                        {{ gold?.price.gold_bar.sell || '-' }}
+                        <!-- {{ gold?.price.gold_bar.sell || '-' }} -->
+                        {{ gold?.price.gold_bar.buy || '-' }}
                       </div>
                     </div>
                   </div>
@@ -169,13 +171,15 @@
                   <div class="grid grid-cols-2 gap-3 items-start">
                     <div class="text-center">
                       <div class="text-[28px] sm:text-[36px] font-black text-[#6b1f1f] tabular-nums leading-none tracking-tight">
-                        {{ gold?.price.gold.buy || '-' }}
+                        <!-- {{ gold?.price.gold.buy || '-' }} -->
+                        {{ gold?.price.gold.sell || '-' }}
                       </div>
                     </div>
 
                     <div class="text-center">
                       <div class="text-[28px] sm:text-[36px] font-black text-[#6b1f1f] tabular-nums leading-none tracking-tight">
-                        {{ gold?.price.gold.sell || '-' }}
+                        <!-- {{ gold?.price.gold.sell || '-' }} -->
+                        {{ gold?.price.gold.buy || '-' }}
                       </div>
                     </div>
                   </div>
