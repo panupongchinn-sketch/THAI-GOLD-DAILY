@@ -4,7 +4,7 @@
     <header class="sticky top-0 z-30 bg-white text-slate-900 border-b border-slate-200">
       <div class="w-full px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
         <div class="flex items-center gap-3">
-          <!-- ✅ เปลี่ยนเป็นรูปโลโก้ (วางไฟล์ไว้ public/unnamed.jpg) -->
+          <!-- ✅ โลโก้ (เอารูปจาก public/unnamed.jpg) -->
           <div class="w-9 h-9 rounded-xl bg-white border border-slate-200 overflow-hidden flex items-center justify-center">
             <img src="/unnamed.jpg" alt="logo" class="w-full h-full object-contain" />
           </div>
@@ -21,8 +21,8 @@
       <div class="bg-[#4b0f14] text-white">
         <div class="w-full px-4 sm:px-6 h-10 flex items-center gap-6 text-xs font-semibold">
           <span class="opacity-90">ราคาทองวันนี้</span>
-          <!-- <span class="opacity-60">กราฟ</span>
-          <span class="opacity-60">เกี่ยวกับเรา</span> -->
+          <span class="opacity-60">กราฟ</span>
+          <span class="opacity-60">เกี่ยวกับเรา</span>
         </div>
       </div>
     </header>
@@ -57,13 +57,13 @@
                 <div class="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
                   <div class="text-white/85">
                     อัปเดตล่าสุด:
-                    <!-- ✅ เวลาปัจจุบัน: render เฉพาะ client (กัน prerender 500) -->
-                    <ClientOnly>
-                      <span class="font-semibold text-white">{{ nowDateThai }} {{ nowTimeThai }}</span>
-                      <template #fallback>
-                        <span class="font-semibold text-white">-</span>
-                      </template>
-                    </ClientOnly>
+                    <span class="font-semibold text-white">
+                      <!-- ✅ กัน prerender: ให้โชว์เวลาปัจจุบันเฉพาะ client -->
+                      <ClientOnly>
+                        {{ nowDateThai }} {{ nowTimeThai }}
+                      </ClientOnly>
+                      <span v-if="!isClient">-</span>
+                    </span>
                   </div>
 
                   <div class="h-4 w-px bg-white/20 hidden sm:block"></div>
@@ -75,6 +75,7 @@
                     </span>
                   </div>
                 </div>
+
               </div>
             </div>
           </div>
@@ -138,10 +139,7 @@
 
                   <div class="mt-3 text-[12px] text-[#6b1f1f]/70 text-center">
                     อัปเดตล่าสุด (เวลาปัจจุบัน)
-                    <ClientOnly>
-                      <span>{{ nowDateThai }} {{ nowTimeThai }}</span>
-                      <template #fallback><span>-</span></template>
-                    </ClientOnly>
+                    <ClientOnly>{{ nowDateThai }} {{ nowTimeThai }}</ClientOnly><span v-if="!isClient">-</span>
                   </div>
                 </div>
               </div>
@@ -184,10 +182,7 @@
 
                   <div class="mt-3 text-[12px] text-[#6b1f1f]/70 text-center">
                     อัปเดตล่าสุด (เวลาปัจจุบัน)
-                    <ClientOnly>
-                      <span>{{ nowDateThai }} {{ nowTimeThai }}</span>
-                      <template #fallback><span>-</span></template>
-                    </ClientOnly>
+                    <ClientOnly>{{ nowDateThai }} {{ nowTimeThai }}</ClientOnly><span v-if="!isClient">-</span>
                   </div>
                 </div>
               </div>
@@ -237,26 +232,32 @@ const gold = ref<GoldApi['response'] | null>(null)
 const loading = ref(true)
 const error = ref('')
 
-// ✅ เวลาปัจจุบัน: ทำงานเฉพาะ client เพื่อกัน Render prerender พัง
-const now = ref<Date | null>(process.client ? new Date() : null)
+// ✅ บอก template ว่าตอนนี้ฝั่ง client ไหม (กัน prerender)
+const isClient = process.client
+
+// ✅ เวลาปัจจุบัน (อัปเดทเฉพาะ client)
+const now = ref(new Date())
 let timer: any = null
 
-const safeFormat = (opt: Intl.DateTimeFormatOptions) => {
+const safeFormat = (opts: Intl.DateTimeFormatOptions) => {
   try {
-    if (!process.client || !now.value) return '-'
-    return new Intl.DateTimeFormat('th-TH', { timeZone: 'Asia/Bangkok', ...opt }).format(now.value)
+    return new Intl.DateTimeFormat('th-TH', opts).format(now.value)
   } catch {
-    try {
-      if (!process.client || !now.value) return '-'
-      return now.value.toLocaleString('th-TH')
-    } catch {
-      return '-'
-    }
+    // fallback กัน ICU/timeZone พังบนเครื่อง build
+    const { timeZone, ...rest } = opts as any
+    return new Intl.DateTimeFormat('th-TH', rest).format(now.value)
   }
 }
 
-const nowDateThai = computed(() => safeFormat({ day: '2-digit', month: 'long', year: 'numeric' }))
-const nowTimeThai = computed(() => safeFormat({ hour: '2-digit', minute: '2-digit', second: '2-digit' }))
+const nowDateThai = computed(() => {
+  if (!process.client) return '' // กัน SSR/prerender ไม่ให้รัน timezone
+  return safeFormat({ timeZone: 'Asia/Bangkok', day: '2-digit', month: 'long', year: 'numeric' })
+})
+
+const nowTimeThai = computed(() => {
+  if (!process.client) return '' // กัน SSR/prerender ไม่ให้รัน timezone
+  return safeFormat({ timeZone: 'Asia/Bangkok', hour: '2-digit', minute: '2-digit', second: '2-digit' })
+})
 
 const loadGold = async () => {
   loading.value = true
@@ -305,6 +306,7 @@ const heroStyle = computed(() => ({
 
 onMounted(() => {
   loadGold()
+  // ✅ อัปเดทเวลาปัจจุบันทุก 1 วินาที (เฉพาะ client)
   timer = setInterval(() => {
     now.value = new Date()
   }, 1000)
