@@ -4,12 +4,10 @@
     <header class="sticky top-0 z-30 bg-white text-slate-900 border-b border-slate-200">
       <div class="w-full px-4 sm:px-6 h-16 flex items-center justify-between gap-4">
         <div class="flex items-center gap-3">
-          <!-- ✅ logo -->
-          <img
-            src="/unnamed.jpg"
-            alt="Thai Gold Daily"
-            class="w-9 h-9 rounded-xl object-contain bg-white border border-slate-200"
-          />
+          <!-- ✅ เปลี่ยนเป็นรูปโลโก้ (วางไฟล์ไว้ public/unnamed.jpg) -->
+          <div class="w-9 h-9 rounded-xl bg-white border border-slate-200 overflow-hidden flex items-center justify-center">
+            <img src="/unnamed.jpg" alt="logo" class="w-full h-full object-contain" />
+          </div>
 
           <div class="leading-tight">
             <div class="font-black">ทองไทยเดลี่</div>
@@ -23,8 +21,8 @@
       <div class="bg-[#4b0f14] text-white">
         <div class="w-full px-4 sm:px-6 h-10 flex items-center gap-6 text-xs font-semibold">
           <span class="opacity-90">ราคาทองวันนี้</span>
-          <!-- <span class="opacity-60"></span>
-          <span class="opacity-60"></span> -->
+          <!-- <span class="opacity-60">กราฟ</span>
+          <span class="opacity-60">เกี่ยวกับเรา</span> -->
         </div>
       </div>
     </header>
@@ -59,9 +57,13 @@
                 <div class="mt-2 flex flex-wrap items-center gap-x-4 gap-y-2 text-sm">
                   <div class="text-white/85">
                     อัปเดตล่าสุด:
-                    <span class="font-semibold text-white">
-                      {{ nowDateThai }} {{ nowTimeThai }}
-                    </span>
+                    <!-- ✅ เวลาปัจจุบัน: render เฉพาะ client (กัน prerender 500) -->
+                    <ClientOnly>
+                      <span class="font-semibold text-white">{{ nowDateThai }} {{ nowTimeThai }}</span>
+                      <template #fallback>
+                        <span class="font-semibold text-white">-</span>
+                      </template>
+                    </ClientOnly>
                   </div>
 
                   <div class="h-4 w-px bg-white/20 hidden sm:block"></div>
@@ -110,20 +112,15 @@
 
                 <div class="px-5 pb-5">
                   <div class="grid grid-cols-2 gap-3 items-start">
-                    <!-- ✅ IMPORTANT: API นี้ buy/sell กลับความหมาย -> รับซื้อ = sell, ขายออก = buy -->
                     <div class="text-center">
-                      <div
-                        class="text-[22px] sm:text-[36px] font-black text-[#6b1f1f] tabular-nums leading-none tracking-tight whitespace-nowrap"
-                      >
-                        {{ goldBarBuyThai || '-' }}
+                      <div class="text-[28px] sm:text-[36px] font-black text-[#6b1f1f] tabular-nums leading-none tracking-tight">
+                        {{ gold?.price.gold_bar.buy || '-' }}
                       </div>
                     </div>
 
                     <div class="text-center">
-                      <div
-                        class="text-[22px] sm:text-[36px] font-black text-[#6b1f1f] tabular-nums leading-none tracking-tight whitespace-nowrap"
-                      >
-                        {{ goldBarSellThai || '-' }}
+                      <div class="text-[28px] sm:text-[36px] font-black text-[#6b1f1f] tabular-nums leading-none tracking-tight">
+                        {{ gold?.price.gold_bar.sell || '-' }}
                       </div>
                     </div>
                   </div>
@@ -140,7 +137,11 @@
                   </div>
 
                   <div class="mt-3 text-[12px] text-[#6b1f1f]/70 text-center">
-                    อัปเดตล่าสุด (เวลาปัจจุบัน) {{ nowDateThai }} {{ nowTimeThai }}
+                    อัปเดตล่าสุด (เวลาปัจจุบัน)
+                    <ClientOnly>
+                      <span>{{ nowDateThai }} {{ nowTimeThai }}</span>
+                      <template #fallback><span>-</span></template>
+                    </ClientOnly>
                   </div>
                 </div>
               </div>
@@ -168,26 +169,25 @@
 
                 <div class="px-5 pb-5">
                   <div class="grid grid-cols-2 gap-3 items-start">
-                    <!-- ✅ IMPORTANT: API นี้ buy/sell กลับความหมาย -> รับซื้อ = sell, ขายออก = buy -->
                     <div class="text-center">
-                      <div
-                        class="text-[22px] sm:text-[36px] font-black text-[#6b1f1f] tabular-nums leading-none tracking-tight whitespace-nowrap"
-                      >
-                        {{ goldBuyThai || '-' }}
+                      <div class="text-[28px] sm:text-[36px] font-black text-[#6b1f1f] tabular-nums leading-none tracking-tight">
+                        {{ gold?.price.gold.buy || '-' }}
                       </div>
                     </div>
 
                     <div class="text-center">
-                      <div
-                        class="text-[22px] sm:text-[36px] font-black text-[#6b1f1f] tabular-nums leading-none tracking-tight whitespace-nowrap"
-                      >
-                        {{ goldSellThai || '-' }}
+                      <div class="text-[28px] sm:text-[36px] font-black text-[#6b1f1f] tabular-nums leading-none tracking-tight">
+                        {{ gold?.price.gold.sell || '-' }}
                       </div>
                     </div>
                   </div>
 
                   <div class="mt-3 text-[12px] text-[#6b1f1f]/70 text-center">
-                    อัปเดตล่าสุด (เวลาปัจจุบัน) {{ nowDateThai }} {{ nowTimeThai }}
+                    อัปเดตล่าสุด (เวลาปัจจุบัน)
+                    <ClientOnly>
+                      <span>{{ nowDateThai }} {{ nowTimeThai }}</span>
+                      <template #fallback><span>-</span></template>
+                    </ClientOnly>
                   </div>
                 </div>
               </div>
@@ -237,28 +237,26 @@ const gold = ref<GoldApi['response'] | null>(null)
 const loading = ref(true)
 const error = ref('')
 
-// ✅ เวลาปัจจุบัน (Bangkok)
-const now = ref(new Date())
+// ✅ เวลาปัจจุบัน: ทำงานเฉพาะ client เพื่อกัน Render prerender พัง
+const now = ref<Date | null>(process.client ? new Date() : null)
 let timer: any = null
 
-const fmtNowDate = () =>
-  new Intl.DateTimeFormat('th-TH', {
-    timeZone: 'Asia/Bangkok',
-    day: '2-digit',
-    month: 'long',
-    year: 'numeric',
-  }).format(now.value)
+const safeFormat = (opt: Intl.DateTimeFormatOptions) => {
+  try {
+    if (!process.client || !now.value) return '-'
+    return new Intl.DateTimeFormat('th-TH', { timeZone: 'Asia/Bangkok', ...opt }).format(now.value)
+  } catch {
+    try {
+      if (!process.client || !now.value) return '-'
+      return now.value.toLocaleString('th-TH')
+    } catch {
+      return '-'
+    }
+  }
+}
 
-const fmtNowTime = () =>
-  new Intl.DateTimeFormat('th-TH', {
-    timeZone: 'Asia/Bangkok',
-    hour: '2-digit',
-    minute: '2-digit',
-    second: '2-digit',
-  }).format(now.value)
-
-const nowDateThai = computed(() => fmtNowDate())
-const nowTimeThai = computed(() => fmtNowTime())
+const nowDateThai = computed(() => safeFormat({ day: '2-digit', month: 'long', year: 'numeric' }))
+const nowTimeThai = computed(() => safeFormat({ hour: '2-digit', minute: '2-digit', second: '2-digit' }))
 
 const loadGold = async () => {
   loading.value = true
@@ -273,15 +271,6 @@ const loadGold = async () => {
   }
 }
 
-// ✅ API นี้ความหมาย buy/sell กลับกับ “รับซื้อ/ขายออก” ในภาษาไทย
-// - “รับซื้อ” = ราคาที่ร้านรับซื้อจากลูกค้า (มักต่ำกว่า) -> ใช้ field sell
-// - “ขายออก” = ราคาที่ร้านขายให้ลูกค้า (มักสูงกว่า) -> ใช้ field buy
-const goldBarBuyThai = computed(() => gold.value?.price.gold_bar.sell || '')
-const goldBarSellThai = computed(() => gold.value?.price.gold_bar.buy || '')
-const goldBuyThai = computed(() => gold.value?.price.gold.sell || '')
-const goldSellThai = computed(() => gold.value?.price.gold.buy || '')
-
-// ✅ เปลี่ยนแปลงรอบก่อนหน้า (จาก API เท่านั้น)
 const changeText = computed(() => gold.value?.price.change.compare_previous || '—')
 
 const changeArrow = computed(() => {
@@ -316,7 +305,6 @@ const heroStyle = computed(() => ({
 
 onMounted(() => {
   loadGold()
-  // ✅ อัปเดทเวลาปัจจุบันทุก 1 วินาที
   timer = setInterval(() => {
     now.value = new Date()
   }, 1000)
